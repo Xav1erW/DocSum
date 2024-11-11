@@ -7,8 +7,10 @@ from langchain_text_splitters.markdown import MarkdownHeaderTextSplitter
 from langchain_core.output_parsers import StrOutputParser, JsonOutputParser
 import os
 from langchain.globals import set_debug
+from dotenv import load_dotenv
+load_dotenv()
 
-set_debug(True)
+# set_debug(True)
 
 # 初始化OpenAI模型和LLMChain
 llm_small = ChatOpenAI(model="glm-4-flash", base_url="https://one-api.x-wang.tech/v1")  # 你可以根据需要选择其他模型
@@ -29,7 +31,7 @@ extract_concepts_prompt = PromptTemplate(
   ...
 }}
 
-Onlt give me the raw json string without other text.
+Onlt give me the raw legal json string without other text. Do not include any special symbols in json keys.
 
 Chapter text:
 {chapter_text}
@@ -60,26 +62,32 @@ Onlt give me the raw json string without other text.
 chapter_summarize_prompt = PromptTemplate(
     input_variables=["chapter_text", "concepts_dict"],
     template="""
-Summarize the core content of the following chapter based on the provided text and the given concept explanations. Focus on the application of each concept and their relationships within the chapter. Try to distill the main ideas and key information.
+Summarize the core content of the following chapter based on the provided text and the given concept explanations. Focus on the application of each concept and their relationships within the chapter. Try to distill the main ideas and key information. If necessary, use LaTeX equations to explain key concepts or results in a more precise and formal way. Please output the result in the following markdown format:
+
+## chapter title
+summary of the chapter
 
 Chapter Text:
 {chapter_text}
 
 Concept Explanations:
-
 {concepts_dict}
 """)
 
-def parse_json(json_str:str):
-    json_str = json_str.strip('```').strip('json')
-    return json.loads(json_str)
-
+def parse_json(input):
+    try:
+        parsed_json = json_parser.invoke(input)
+    except Exception as e:
+        print(f"Error occurred while parsing json: {e}")
+        # TODO: only delete the concept that failed to parse
+        return {}
+    
+    return parsed_json
 def store_concepts_to_db(concepts:dict):
     global concepts_dict
     concepts_dict.update(concepts)
     return concepts
-    # for concept in concepts:
-    #     concepts_dict[concept.strip()] = True  # 假设只是存储概念的名称
+
 
 # 4. 章节中提及的前文中定义的概念或实体，加入LLM的prompt
 def get_previous_concepts(concept_needed:list[str]):
@@ -87,7 +95,7 @@ def get_previous_concepts(concept_needed:list[str]):
     concepts_json = json.dumps(filtered_concepts)
     return concepts_json
 
-concepts_extractor = extract_concepts_prompt | llm_small | json_parser | store_concepts_to_db
+concepts_extractor = extract_concepts_prompt | llm_small | parse_json | store_concepts_to_db
 
 concepts_retriever = concepts_retriever_prompt | llm_small | json_parser | get_previous_concepts
 
@@ -128,21 +136,31 @@ def main():
     summaries = []
 
     # 循环处理每个章节
-    for i, chapter in enumerate(chapters):
-        print(f"总结第{i+1}章:")
-        print("raw_text")
-        print(f"{chapter.metadata.get('Header 2')}\n\n{chapter.page_content}")
-        summary = summarize_single_chapter(f"{chapter.metadata.get('Header 2', '')}\n\n{chapter.page_content}")
-        summaries.append(summary)
+    try:
+        for i, chapter in enumerate(chapters):
+            print(f"总结第{i+1}章:")
+            print("raw_text")
+            if chapter.metadata.get('Header 2', '') == '':
+                continue
+            formatted_chapter = f"## {chapter.metadata.get('Header 2', '')}\n\n{chapter.page_content}"
+            print(formatted_chapter)
+            summary = summarize_single_chapter(formatted_chapter)
+            summaries.append(summary)
+    except Exception as e:
+        print(f"Error occurred while processing the chapter.: {e}")
+        print("Generating summary from previous chapters.")
 
     # 最终生成完整的文档总结
     # final_summary = generate_document_summary(markdown_text)
     final_summary = '\n\n'.join(summaries)
     print("\n最终文档总结:")
     print(final_summary)
+    with open("out_sum.md", "w", encoding='utf-8') as f:
+        f.write(final_summary)
 
 if __name__ == "__main__":
-    # main()
+    main()
+    exit(0)
     chapter_text = """
 ## Large Language Models
 
