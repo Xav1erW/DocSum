@@ -20,3 +20,15 @@
 总体上仿照人类（我的）阅读习惯，先看整体结构，之后按照章节阅读，记忆新提出的概念，当后文提及时去前文查找。
 
 初步可以只搭建一个不对概念存储和查找的框架，只是实现分割和循环总结，最终拼接的流程。
+
+## 工具选用
+
+文档解析：
+* [docling](https://github.com/DS4SD/docling/tree/main)
+
+智能体：
+* [LangChain](https://github.com/hwchase17/langchain)
+
+智能体模型：
+* [Qwen2-1.5B](https://huggingface.co/Qwen/Qwen2-1.5B-Instruct)  小模型
+* [Qwen2-7B](https://huggingface.co/Qwen/Qwen2-7B-Instruct)  较大模型
