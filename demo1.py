@@ -67,6 +67,8 @@ Summarize the core content of the following chapter based on the provided text a
 ## chapter title
 summary of the chapter
 
+使用中文回答我总结的章节，请使用中文。
+
 Chapter Text:
 {chapter_text}
 
@@ -129,8 +131,7 @@ def parse_md(file_path):
     result = splitter.split_text(md_text)
     return result
 # 主函数执行
-def main():
-    markdown_path = 'out.md'
+def main(markdown_path, output_file):
     # 分割文档为章节
     chapters = parse_md(markdown_path)
     summaries = []
@@ -155,11 +156,12 @@ def main():
     final_summary = '\n\n'.join(summaries)
     print("\n最终文档总结:")
     print(final_summary)
-    with open("out_sum.md", "w", encoding='utf-8') as f:
+    with open(output_file, "w", encoding='utf-8') as f:
         f.write(final_summary)
 
 if __name__ == "__main__":
-    main()
+    markdown_path = '11-chapter.md'
+    main(markdown_path, '11out_sum-zh.md')
     exit(0)
     chapter_text = """
 ## Large Language Models
