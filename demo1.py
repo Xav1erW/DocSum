@@ -6,9 +6,11 @@ from langchain.prompts import PromptTemplate
 from langchain_text_splitters.markdown import MarkdownHeaderTextSplitter
 from langchain_core.output_parsers import StrOutputParser, JsonOutputParser
 import os
-from langchain.globals import set_debug
+# from langchain.globals import set_debug
 from dotenv import load_dotenv
 load_dotenv()
+
+from docling_parser import parse_pdf
 
 # set_debug(True)
 
@@ -161,6 +163,7 @@ def main(markdown_path, output_file):
 
 if __name__ == "__main__":
     markdown_path = '11-chapter.md'
+    parse_pdf('第十一章[1].pdf', markdown_path)
     main(markdown_path, '11out_sum-zh.md')
     exit(0)
     chapter_text = """
