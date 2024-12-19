@@ -2,7 +2,7 @@ import gradio as gr
 from pyvis.network import Network
 import tempfile
 
-from doc_sum import main
+from doc_sum import SummaryAgent
 from docling_parser import parse_pdf
 
 # 示例知识图谱三元组
@@ -44,7 +44,8 @@ def all_summary(file)->tuple[str, str]:
     
     with tempfile.NamedTemporaryFile(mode='w+', delete=False, suffix='.md') as temp2:
         output_filename = temp2.name
-        main(markdown_path, output_filename)
+        agent = SummaryAgent(markdown_path, output_filename)
+        agent.run()
     
     with open(output_filename, 'r') as f:
         summary = f.read()
