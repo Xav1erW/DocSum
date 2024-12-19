@@ -17,8 +17,8 @@ from prompts.prompts_doc_sum import extract_concepts_prompt, concepts_retriever_
 # set_debug(True)
 
 # 初始化OpenAI模型和LLMChain
-llm_small = ChatOpenAI(model="glm-4-flash", base_url="https://one-api.x-wang.tech/v1")  # 你可以根据需要选择其他模型
-llm_big = ChatOpenAI(model="glm-4-flash", base_url="https://one-api.x-wang.tech/v1")  # 你可以根据需要选择其他模型
+llm_small = ChatOpenAI(model="yi-lightning", base_url="https://api.lingyiwanwu.com/v1")  # 你可以根据需要选择其他模型
+llm_big = ChatOpenAI(model="yi-lightning", base_url="https://api.lingyiwanwu.com/v1")  # 你可以根据需要选择其他模型
 
 output_parser = StrOutputParser()
 json_parser = JsonOutputParser()
@@ -89,6 +89,6 @@ def main(markdown_path, output_file):
         f.write(final_summary)
 
 if __name__ == "__main__":
-    markdown_path = '11-chapter.md'
-    parse_pdf('第十一章[1].pdf', markdown_path)
+    markdown_path = './temp/11-chapter.md'
+    # parse_pdf('第十一章[1].pdf', markdown_path)
     main(markdown_path, '11out_sum-zh.md')
