@@ -63,4 +63,27 @@ Concept Explanations:
 """
 )
 
+triple_generation_prompt = PromptTemplate(
+    input_variables=["concepts_text"],
+    template="""Based on the following concepts and their explanations, generate knowledge triples in the format:
+
+[
+    ["Entity1", "Relation1", "Entity2"],
+    ["Entity2", "Relation2", "Entity3"],
+    ["Entity3", "Relation3", "Entity4"],
+    ...
+]
+
+Instructions:
+1. Entities must be concise, preferably single nouns or short noun phrases.
+2. Entities should avoid being sentences, descriptions, or overly long phrases.
+3. Relations should clearly describe the relationship between the two entities in no more than 3 words.
+4. The output must be a valid JSON array and strictly follow the specified format.
+
+Concept Explanations:
+{concepts_text}
+"""
+)
+
+
 

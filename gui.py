@@ -1,32 +1,46 @@
 import gradio as gr
 from pyvis.network import Network
+import json
 import tempfile
 
 from doc_sum import SummaryAgent
 from docling_parser import parse_pdf
 
-# 示例知识图谱三元组
-data = [
-    ("实体1", "关系1", "实体2"),
-    ("实体2", "关系2", "实体3"),
-    ("实体3", "关系3", "实体4"),
-    ("实体4", "关系4", "实体1"),
-]
+def load_triplets(json_path):
+    with open(json_path, 'r', encoding='utf-8') as f:
+        return json.load(f)
 
-# 根据三元组构建知识图谱并生成交互式图
 def build_interactive_graph(data):
     net = Network(height="750px", width="100%", directed=True)
-
+    
+    # 添加节点和边
     for source, relation, target in data:
-        net.add_node(source, label=source, color="lightblue")
-        net.add_node(target, label=target, color="lightblue")
+        net.add_node(source, label=source, color="lightblue", size=10)
+        net.add_node(target, label=target, color="lightblue", size=10)
         net.add_edge(source, target, label=relation)
-
-    # 添加物理布局
-    # net.toggle_physics(True)
-    net.toggle_hide_edges_on_drag(True)
-    net.toggle_physics(False)
-    net.set_edge_smooth('discrete')
+    
+    # 启用物理布局并设置参数
+    net.toggle_physics(True)
+    net.set_options("""
+    var options = {
+      "physics": {
+        "forceAtlas2Based": {
+          "gravitationalConstant": -50,
+          "centralGravity": 0.01,
+          "springLength": 200,
+          "springConstant": 0.08,
+          "avoidOverlap": 1
+        },
+        "maxVelocity": 50,
+        "solver": "forceAtlas2Based",
+        "timestep": 0.35,
+        "stabilization": {
+          "enabled": true,
+          "iterations": 200
+        }
+      }
+    }
+    """)
 
     html = net.generate_html()
     html = html.replace("'", "\"")
@@ -37,6 +51,7 @@ def build_interactive_graph(data):
     allow-top-navigation-by-user-activation allow-downloads" allowfullscreen=""
     allowpaymentrequest="" frameborder="0" srcdoc='{html}'></iframe>"""
 
+
 def all_summary(file)->tuple[str, str]:
     with tempfile.NamedTemporaryFile(mode='w+', delete=False, suffix='.md') as temp:
         markdown_path = temp.name
@@ -46,17 +61,14 @@ def all_summary(file)->tuple[str, str]:
         output_filename = temp2.name
         agent = SummaryAgent(markdown_path, output_filename)
         agent.run()
-    
+   
+    output_filename = '11out_sum-zh.md'
     with open(output_filename, 'r') as f:
         summary = f.read()
 
-    kg = [
-        ("实体1", "关系1", "实体2"),
-        ("实体2", "关系2", "实体3"),
-        ("实体3", "关系3", "实体4"),
-        ("实体4", "关系4", "实体1"),
-    ]
-    kg_viz = build_interactive_graph(kg)
+    triples_output_file = output_filename.replace(".md", "_triples.json")
+    triplets = load_triplets(triples_output_file)
+    kg_viz = build_interactive_graph(triplets)
     return summary, kg_viz
 
 # Gradio 回调函数
