@@ -62,7 +62,6 @@ def all_summary(file)->tuple[str, str]:
         agent = SummaryAgent(markdown_path, output_filename)
         agent.run()
    
-    output_filename = '11out_sum-zh.md'
     with open(output_filename, 'r') as f:
         summary = f.read()
 
