@@ -3,8 +3,24 @@ from langchain_text_splitters.markdown import MarkdownHeaderTextSplitter
 from langchain_core.output_parsers import JsonOutputParser
 def parse_pdf(file_path, markdown_file_path):
     source = file_path  # document per local path or URL
-    converter = DocumentConverter()
-    result = converter.convert(source)
+    from docling.datamodel.pipeline_options import PdfPipelineOptions
+    from docling.datamodel.base_models import InputFormat
+    from docling.document_converter import DocumentConverter, PdfFormatOption
+    from docling.backend.pypdfium2_backend import PyPdfiumDocumentBackend
+    pipeline_options = PdfPipelineOptions(do_ocr=False, do_table_structure = False)
+    pipeline_options.do_ocr = False
+    pipeline_options.do_table_structure = True
+    pipeline_options.table_structure_options.do_cell_matching = False
+
+    doc_converter = DocumentConverter(
+        format_options={
+            InputFormat.PDF: PdfFormatOption(
+                pipeline_options=pipeline_options, backend=PyPdfiumDocumentBackend
+            )
+        }
+    )
+    # converter = DocumentConverter()
+    result = doc_converter.convert(source)
     with open(markdown_file_path, 'w') as f:
         f.write(result.document.export_to_markdown())
 
