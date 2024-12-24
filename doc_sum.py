@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from docling_parser import parse_pdf
+from tqdm import tqdm
 from utils.parser import parse_md, parse_json
 from prompts.prompts_doc_sum import extract_concepts_prompt, concepts_retriever_prompt, chapter_summarize_prompt, triple_generation_prompt
 
@@ -70,6 +71,8 @@ class SummaryAgent:
         triples = self.triple_generator.invoke({
             "concepts_text": concepts_text
         })
+        # 过滤掉不符合三元组定义的（比如两个）
+        triples = [triple for triple in triples if len(triple) == 3]
         return triples
 
     def summarize_single_chapter(self, chapter_text):
@@ -97,7 +100,7 @@ class SummaryAgent:
 
         # 循环处理每个章节
         try:
-            for i, chapter in enumerate(chapters):
+            for i, chapter in enumerate(tqdm(chapters)):
                 print(f"总结第{i+1}章:")
                 # print("raw_text")
                 if chapter.metadata.get('Header 2', '') == '':
