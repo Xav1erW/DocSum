@@ -4,7 +4,7 @@ import json
 import tempfile
 
 from doc_sum import SummaryAgent
-from docling_parser import parse_pdf
+from utils.parser import parse_pdf
 
 def load_triplets(json_path):
     with open(json_path, 'r', encoding='utf-8') as f:
@@ -53,9 +53,13 @@ def build_interactive_graph(data):
 
 
 def all_summary(file)->tuple[str, str]:
-    with tempfile.NamedTemporaryFile(mode='w+', delete=False, suffix='.md') as temp:
-        markdown_path = temp.name
-        parse_pdf(file_path=file, markdown_file_path=markdown_path)
+    file_suffix = file.split('.')[-1]
+    if file_suffix == 'pdf':
+        with tempfile.NamedTemporaryFile(mode='w+', delete=False, suffix='.md') as temp:
+            markdown_path = temp.name
+            parse_pdf(file_path=file, markdown_file_path=markdown_path)
+    else:
+        markdown_path = file
     
     with tempfile.NamedTemporaryFile(mode='w+', delete=False, suffix='.md') as temp2:
         output_filename = temp2.name
