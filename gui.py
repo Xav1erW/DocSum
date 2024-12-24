@@ -2,6 +2,7 @@ import gradio as gr
 from pyvis.network import Network
 import json
 import tempfile
+from tqdm import tqdm
 
 from doc_sum import SummaryAgent
 from utils.parser import parse_pdf
@@ -14,7 +15,7 @@ def build_interactive_graph(data):
     net = Network(height="750px", width="100%", directed=True)
     
     # 添加节点和边
-    for source, relation, target in data:
+    for source, relation, target in tqdm(data):
         net.add_node(source, label=source, color="lightblue", size=10)
         net.add_node(target, label=target, color="lightblue", size=10)
         net.add_edge(source, target, label=relation)
@@ -53,14 +54,16 @@ def build_interactive_graph(data):
 
 
 def all_summary(file)->tuple[str, str]:
+    progress = gr.Progress(track_tqdm=True)
     file_suffix = file.split('.')[-1]
+    progress((1, 4), desc='解析文件')
     if file_suffix == 'pdf':
         with tempfile.NamedTemporaryFile(mode='w+', delete=False, suffix='.md') as temp:
             markdown_path = temp.name
             parse_pdf(file_path=file, markdown_file_path=markdown_path)
     else:
         markdown_path = file
-    
+    progress((2, 4), desc='生成总结')
     with tempfile.NamedTemporaryFile(mode='w+', delete=False, suffix='.md') as temp2:
         output_filename = temp2.name
         agent = SummaryAgent(markdown_path, output_filename)
@@ -69,9 +72,13 @@ def all_summary(file)->tuple[str, str]:
     with open(output_filename, 'r') as f:
         summary = f.read()
 
+    progress((3, 4), desc='加载三元组')
     triples_output_file = output_filename.replace(".md", "_triples.json")
     triplets = load_triplets(triples_output_file)
+
+    progress((4, 4), desc='生成图谱')
     kg_viz = build_interactive_graph(triplets)
+
     return summary, kg_viz
 
 # Gradio 回调函数
