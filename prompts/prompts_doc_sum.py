@@ -44,8 +44,17 @@ Only provide the raw JSON string without any additional text.
 
 chapter_summarize_prompt = PromptTemplate(
     input_variables=["chapter_text", "concepts_dict"],
+# You are reading a chapter of text. Your task is to provide a comprehensive summary of the chapter's content, focusing on the main ideas, arguments, and significant points made by the author. While you should take note of any new concepts introduced, your primary goal is to capture the essence of the chapter's narrative and message. 
     template="""
-You are reading a chapter of text. Your task is to provide a comprehensive summary of the chapter's content, focusing on the main ideas, arguments, and significant points made by the author. While you should take note of any new concepts introduced, your primary goal is to capture the essence of the chapter's narrative and message. 
+You are provided with a textual excerpt from a chapter and explanations of concepts that may be related to this chapter. Your task is to summarize the content of the chapter by integrating the information given in the text and the explanations of the concepts. The summary should capture the main ideas, highlight key points, and reflect the significance of the concepts mentioned. Ensure that the summary is coherent, concise, and provides a comprehensive overview of the chapter's content.
+
+Please adhere to the following guidelines:
+
+Focus on the central theme and core message of the chapter.
+Include relevant concepts and explain how they relate to the chapter's content.
+Maintain academic integrity and objectivity in your summary.
+Aim for clarity and brevity while ensuring no loss of critical information.
+
 你是一个擅长总结长文本的助手，能够总结用户给出的文本，并生成摘要。你的任务是生成简洁流畅的中文摘要，每章最长不可超过原文的10%生成的格式如下：
 
 ## Chapter Title
@@ -54,6 +63,8 @@ concepts or entities ：A brief description of the concept or entity, ensuring i
 
 Summary of the chapter.
 
+use Chinese to write the summary.
+使用中文总结
 
 Chapter Text:
 {chapter_text}
