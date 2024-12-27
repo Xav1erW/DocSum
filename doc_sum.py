@@ -17,15 +17,15 @@ from prompts.prompts_doc_sum import extract_concepts_prompt, concepts_retriever_
 
 from langchain_community.chat_models import ChatZhipuAI
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
-
+from langchain_core.utils.utils import secret_from_env
 # set_debug(True)
 
 class SummaryAgent:
 
     def __init__(self, input_markdown, output_path):
         # 初始化OpenAI模型和LLMChain
-        self.llm_small = ChatOpenAI(model="deepseek-chat", base_url="https://api.deepseek.com/v1")  # 你可以根据需要选择其他模型
-        self.llm_big = ChatOpenAI(model="deepseek-chat", base_url="https://api.deepseek.com/v1")  # 你可以根据需要选择其他模型
+        self.llm_small = ChatOpenAI(model=os.environ.get("SMALL_MODEL", 'deepseek-chat'), base_url=os.environ.get("SMALL_BASE_URL"), api_key=secret_from_env("OPENAI_API_KEY_SMALL")())  # 你可以根据需要选择其他模型
+        self.llm_big = ChatOpenAI(model=os.environ.get("BIG_MODEL", 'deepseek-chat'), base_url=os.environ.get("BIG_BASE_URL"), api_key=secret_from_env("OPENAI_API_KEY_BIG")())  # 你可以根据需要选择其他模型
         
         # self.llm_small = ChatZhipuAI(
         #     model="glm-4-flash",
