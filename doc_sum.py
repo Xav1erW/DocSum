@@ -24,8 +24,8 @@ class SummaryAgent:
 
     def __init__(self, input_markdown, output_path):
         # 初始化OpenAI模型和LLMChain
-        self.llm_small = ChatOpenAI(model="yi-lightning", base_url="https://api.lingyiwanwu.com/v1")  # 你可以根据需要选择其他模型
-        self.llm_big = ChatOpenAI(model="yi-lightning", base_url="https://api.lingyiwanwu.com/v1")  # 你可以根据需要选择其他模型
+        self.llm_small = ChatOpenAI(model="deepseek-chat", base_url="https://api.deepseek.com/v1")  # 你可以根据需要选择其他模型
+        self.llm_big = ChatOpenAI(model="deepseek-chat", base_url="https://api.deepseek.com/v1")  # 你可以根据需要选择其他模型
         
         # self.llm_small = ChatZhipuAI(
         #     model="glm-4-flash",
